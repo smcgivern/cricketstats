@@ -1,0 +1,10 @@
+data/*.csv
+.vscode
+.ipynb_checkpoints
+*.ipynb
+.~lock*
+*.sh
+data/old/*.csv
+__pycache__/
+stats_old.py
+scraper.py
