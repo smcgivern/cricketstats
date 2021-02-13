@@ -99,6 +99,8 @@ def team_data(values):
     runs = score.split('/')[0]
     if runs == 'DNB':
         runs = 0
+    elif runs == 'forfeited':
+        runs = 0
 
     all_out = True
     if '/' in score or score == 'DNB':
@@ -111,7 +113,7 @@ def team_data(values):
     opposition = opposition[2:]
     if len(values) == 9:
         lead = np.nan
-    page_values = [team, score, runs, overs, bpo, rpo, lead, all_out, declared, result, inns, opposition, ground, start_date]
+    page_values = [team, score, int(runs), overs, bpo, rpo, lead, all_out, declared, result, inns, opposition, ground, start_date]
     return page_values
 
 def get_data(values, page_df, activity, prev_data, f):

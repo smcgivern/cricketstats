@@ -9,7 +9,10 @@ def get_dataset(args):
     gender = 'women' if args.women else 'men'
     form = 'bowling' if args.bowling else 'batting'
     
-    df = pd.read_pickle(f'data/{gender}_{args.format}_{form}.pkl')
+    if args.teams:
+        df = pd.read_pickle(f'data/{gender}_{args.format}_team.pkl')
+    else:
+        df = pd.read_pickle(f'data/{gender}_{args.format}_{form}.pkl')
     return df
 
 def get_max_consecutive(group):
@@ -62,7 +65,7 @@ def get_all_consecutive(criteria, data, sort_order=['player', 'start_date', 'inn
     results = data.groupby(search_item).apply(get_max_consecutive)
     return results
 
-def get_most_consecutive_individual(query, data, sort_order=['player', 'start_date', 'innings'], args=None):
+def get_most_consecutive(query, data, sort_order=['player', 'start_date', 'innings'], args=None):
     results = get_all_consecutive(query, data, sort_order)
     # get the maximum result
     max_value = results['maximum'].max()
@@ -74,12 +77,8 @@ def get_most_consecutive_individual(query, data, sort_order=['player', 'start_da
     return max_value, result_data
 
 
-def get_most_consecutive_team(query, sort_order=['team', 'start_date', 'innings'], args=None):
-    all_innings_file = 'data/all_test_innings.csv'
-    all_innings = pd.read_csv(all_innings_file)
-    all_innings.start_date = pd.to_datetime(all_innings.start_date, infer_datetime_format=True)
-    all_innings.runs = pd.to_numeric(all_innings.runs, errors='coerce').astype("Int64")
-    return get_most_consecutive_individual(query, all_innings, sort_order, args=args)
+# def get_most_consecutive_team(query, data, sort_order=['team', 'start_date', 'innings'], args=None):
+#     return get_most_consecutive(query, data, sort_order, args=args)
 
 
 def filter_pos(data, args):
@@ -127,8 +126,7 @@ if args.print:
     pd.set_option('display.max_colwidth', None)
 
 
-if not args.teams:
-    df = get_dataset(args)
+df = get_dataset(args)
 
 if args.complex:
     # modify this example from the blogpost, it's just an example of a complex query that might
@@ -155,16 +153,15 @@ if args.complex:
     # display 10 results by default
     print(results.head(10)['maximum'])
 else:
-    if args.teams:
-        max_value, result = get_most_consecutive_team(args.query)
-        print(max_value)
+    if args.filter:
+        data = filter_pos(df.copy(), args)
+        result = query_data(data, args.query)
     else:
-        if args.filter:
-            data = filter_pos(df.copy(), args)
-            result = query_data(data, args.query)
+        if args.teams:
+            max_value, result = get_most_consecutive(args.query, data=df.copy(), sort_order=['team', 'start_date', 'innings'])
         else:
-            max_value, result = get_most_consecutive_individual(args.query, data=df.copy())
-            print(max_value)
+            max_value, result = get_most_consecutive(args.query, data=df.copy())
+        print(max_value)
 
     print(result)
     # if args.bowling:
