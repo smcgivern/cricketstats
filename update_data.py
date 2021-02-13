@@ -15,10 +15,11 @@ from teams import team_lookup, format_lookup, format_length
 page = 1
 pos = 1
 headings = [['player', 'team', 'runs', 'runs_txt', 'not_out', 'mins', 'bf', '4s', '6s', 'sr', 'pos', 'innings','opposition','ground','start_date'],
-            ['player', 'team', 'overs', 'maidens', 'runs', 'wickets', 'bpo', 'balls', 'economy', 'pos', 'innings', 'opposition', 'ground', 'start_date']]
+            ['player', 'team', 'overs', 'maidens', 'runs', 'wickets', 'bpo', 'balls', 'economy', 'pos', 'innings', 'opposition', 'ground', 'start_date'],
+            ['team', 'score', 'runs', 'overs', 'bpo', 'rpo', 'lead', 'all_out', 'declared', 'result', 'innings', 'opposition', 'ground', 'start_date']]
+#team,score,runs,overs,balls_per_over,rpo,lead,innings,result,opposition,ground,start_date,all_out_flag,declared_flag
 
-
-get_idx = {'batting': 0, 'bowling': 1}
+get_idx = {'batting': 0, 'bowling': 1, 'team': 2}
 
 prev_data = None
 
@@ -83,15 +84,47 @@ def batting_data(values, prev_data):
     page_values = [player, team, runs, runs_txt, not_out, mins, bf, fours, sixes, sr, pos, inns, opposition, ground, start_date]
     return page_values
 
+def team_data(values):
+    if len(values) == 10:
+        team, score, overs, rpo, lead, inns, result, opposition, ground, start_date = values
+    elif len(values) == 9:
+        team, score, overs, rpo, inns, result, opposition, ground, start_date = values
+    overs = str(overs)
+    overs_and_balls = overs.split('x')
+    overs = overs_and_balls[0]
+    
+    bpo = 6
+    if len(overs_and_balls) == 2:
+        bpo = int(overs_and_balls[1])
+    runs = score.split('/')[0]
+    if runs == 'DNB':
+        runs = 0
+
+    all_out = True
+    if '/' in score or score == 'DNB':
+        all_out = False
+    
+    declared = False
+    if score[-1] == 'd':
+        declared = True
+    
+    opposition = opposition[2:]
+    if len(values) == 9:
+        lead = np.nan
+    page_values = [team, score, runs, overs, bpo, rpo, lead, all_out, declared, result, inns, opposition, ground, start_date]
+    return page_values
+
 def get_data(values, page_df, activity, prev_data, f):
     if activity == 'batting':
         page_values = batting_data(values, prev_data)
     elif activity == 'bowling':
         page_values = bowling_data(values, prev_data)
+    elif activity == 'team':
+        page_values = team_data(values)
     else:
         raise Exception(f'activity wrong {activity}')
     
-    idx = 0 if activity == 'batting' else 1
+    idx = get_idx[activity]
     inns, opposition, ground, start_date = values[-4], values[-3], values[-2], values[-1]
     start_date = parser.parse(start_date)
     if 'test' in f:
@@ -113,7 +146,7 @@ def is_nan(val):
 
 def parse_page(df, soup, activity, f, last_row, can_append):
     global prev_data
-    idx = 0 if activity == 'batting' else 1
+    idx = get_idx[activity]
     format_str = f"{f}_{activity}"
     for table in soup.findAll("table", class_ = "engineTable"):
         # There are a few table.engineTable in the page. We want the one that has the match
@@ -132,6 +165,7 @@ def parse_page(df, soup, activity, f, last_row, can_append):
                 # filter out all the empty string values
                 values = [x for x in values if x != '']
                 values = [x if x != '-' else np.nan for x in values]
+                # print(len(values))
                 if len(values) != format_length[format_str] or is_nan(values[1]):
                     print(values)
                     continue
@@ -149,7 +183,7 @@ def parse_page(df, soup, activity, f, last_row, can_append):
             return True, df, can_append
 
 def scrape_pages():
-    for activity in ('batting', 'bowling',):
+    for activity in ('team',):
         for f in format_lookup.keys():
             print(f'Starting format {f}')
             print(f'starting {activity}')
@@ -176,8 +210,10 @@ def scrape_pages():
                 page_num += 1
             if activity == 'batting':
                 data_types = {'mins': int, 'bf': int, '4s': int, '6s': int, 'sr': float}
-            else:
+            elif activity == 'bowling':
                 data_types = {'maidens': int, 'runs': int, 'wickets':int, 'bpo': int, 'balls': int, 'economy': float}
+            elif activity == 'team':
+                data_types = {'runs': int, 'bpo': int, 'rpo': float, 'lead': int, 'innings': int}
             df = df.astype(data_types, errors='ignore')
             df.to_pickle(f'data/{f}_{activity}.pkl')
             df.to_csv(f'data/{f}_{activity}.csv')

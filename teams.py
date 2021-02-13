@@ -12,7 +12,14 @@ format_length = {'men_test_batting': 11,
                 'women_odi_batting': 11,
                 'women_odi_bowling': 10,
                 'women_t20i_batting': 11,
-                'women_t20i_bowling': 10}
+                'women_t20i_bowling': 10,
+                'men_test_team': 10,         
+                'men_odi_team': 9,         
+                'men_t20i_team': 9,         
+                'women_test_team': 10,         
+                'women_odi_team': 9,         
+                'women_t20i_team': 9,               
+                }
 
 team_lookup = {'AUS': 'Australia',
             'ENG': 'England',
