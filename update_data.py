@@ -123,8 +123,6 @@ def get_data(values, page_df, activity, prev_data, f):
         page_values = bowling_data(values, prev_data)
     elif activity == 'team':
         page_values = team_data(values)
-    else:
-        raise Exception(f'activity wrong {activity}')
     
     idx = get_idx[activity]
     inns, opposition, ground, start_date = values[-4], values[-3], values[-2], values[-1]
@@ -185,7 +183,7 @@ def parse_page(df, soup, activity, f, last_row, can_append):
             return True, df, can_append
 
 def scrape_pages():
-    for activity in ('team',):
+    for activity in ('batting', 'bowling', 'team',):
         for f in format_lookup.keys():
             print(f'Starting format {f}')
             print(f'starting {activity}')
