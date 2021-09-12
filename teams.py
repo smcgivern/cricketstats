@@ -164,7 +164,23 @@ team_lookup = {'AUS': 'Australia',
             'BLZ-W': 'Belize Women',
             'PHI-W': 'Philippines Women',
             'OMA-W': 'Oman Women',
-            'QAT-W': 'Qatar Women'
+            'QAT-W': 'Qatar Women',
+            'SRB': 'Serbia',
+            'HUN': 'Hungary',
+            'RWN': 'Rwanda',
+            'SWE': 'Sweden',
+            'Fran': 'France',
+            'IOM': 'Isle of Man',
+            'Iran': 'Iran',
+            'BHU': 'Bhutan',
+            'MWI': 'Malawi',
+            'Moz': 'Mozambique',
+            'GIBR': 'Gibraltar',
+            'PORT': 'Portugal',
+            'GRC': 'Greece',
+            'BUL': 'Bulgaria',
+            'ESW-W': 'Eswatini Women',
+            'SWE-W': 'Sweden Women',
+            'ITA-W': 'Italy Women',
+            'CMR-W': 'Cameroon Women'
             }
-
-

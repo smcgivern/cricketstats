@@ -116,7 +116,7 @@ def team_data(values):
     page_values = [team, score, int(runs), overs, bpo, rpo, lead, all_out, declared, result, inns, opposition, ground, start_date]
     return page_values
 
-def get_data(values, page_df, activity, prev_data, f):
+def get_data(values, page_df, activity, prev_data, f, data_types):
     if activity == 'batting':
         page_values = batting_data(values, prev_data)
     elif activity == 'bowling':
@@ -135,6 +135,7 @@ def get_data(values, page_df, activity, prev_data, f):
         series = pd.Series(page_values, index=headings[idx])
         page_df = page_df.append(series, ignore_index=True)
 
+    page_df = page_df.astype(data_types, errors='ignore')
     opposition = opposition[2:]
     prev_data = (inns, opposition, ground, start_date)
     return page_df, prev_data
@@ -144,7 +145,7 @@ def is_nan(val):
     # yes, this is confusing.
     return val != val
 
-def parse_page(df, soup, activity, f, last_row, can_append):
+def parse_page(df, soup, activity, f, last_row, can_append, data_types):
     global prev_data
     idx = get_idx[activity]
     format_str = f"{f}_{activity}"
@@ -170,7 +171,7 @@ def parse_page(df, soup, activity, f, last_row, can_append):
                     print(values)
                     continue
 
-                page_df, prev_data = get_data(values, page_df, activity, prev_data, f)
+                page_df, prev_data = get_data(values, page_df, activity, prev_data, f, data_types)
                 if not page_df.empty and page_df.iloc[-1].equals(last_row):
                     can_append = True
                     page_df = pd.DataFrame(columns=headings[idx])
@@ -184,6 +185,13 @@ def parse_page(df, soup, activity, f, last_row, can_append):
 
 def scrape_pages():
     for activity in ('batting', 'bowling', 'team',):
+        if activity == 'batting':
+            data_types = {'mins': int, 'bf': int, '4s': int, '6s': int, 'sr': float}
+        elif activity == 'bowling':
+            data_types = {'maidens': int, 'runs': int, 'wickets':int, 'bpo': int, 'balls': int, 'economy': float}
+        elif activity == 'team':
+            data_types = {'runs': int, 'bpo': int, 'rpo': float, 'lead': int, 'innings': int}
+
         for f in format_lookup.keys():
             print(f'Starting format {f}')
             print(f'starting {activity}')
@@ -199,6 +207,8 @@ def scrape_pages():
                 page_num = 1
                 last_row = None
                 can_append = True
+
+            df = df.astype(data_types, errors='ignore')
             more_results = True
             while more_results:
                 print(f"Scraping page {page_num}")
@@ -208,13 +218,7 @@ def scrape_pages():
                 # put a sleep in there so we don't hammer the cricinfo site too much
                 time.sleep(0.5)
                 page_num += 1
-            if activity == 'batting':
-                data_types = {'mins': int, 'bf': int, '4s': int, '6s': int, 'sr': float}
-            elif activity == 'bowling':
-                data_types = {'maidens': int, 'runs': int, 'wickets':int, 'bpo': int, 'balls': int, 'economy': float}
-            elif activity == 'team':
-                data_types = {'runs': int, 'bpo': int, 'rpo': float, 'lead': int, 'innings': int}
-            df = df.astype(data_types, errors='ignore')
+
             df.to_pickle(f'data/{f}_{activity}.pkl')
             df.to_csv(f'data/{f}_{activity}.csv')
     print('All done!')
