@@ -214,7 +214,7 @@ def scrape_pages():
                 print(f"Scraping page {page_num}")
                 
                 soup = getpage(page_num, f, activity)
-                more_results, df, can_append = parse_page(df, soup, activity, f, last_row, can_append)
+                more_results, df, can_append = parse_page(df, soup, activity, f, last_row, can_append, data_types)
                 # put a sleep in there so we don't hammer the cricinfo site too much
                 time.sleep(0.5)
                 page_num += 1
