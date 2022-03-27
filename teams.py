@@ -1,8 +1,8 @@
 format_lookup = {'men_test': 1, 'men_odi': 2, 'men_t20i': 3, 'women_test': 8, 'women_odi': 9, 'women_t20i':10}
 # format_lookup = {'women_odi': 9, 'women_t20i':10}
 
-format_length = {'men_test_batting': 11, 
-                'men_test_bowling': 11, 
+format_length = {'men_test_batting': 11,
+                'men_test_bowling': 11,
                 'men_odi_bowling': 11,
                 'men_odi_batting': 11,
                 'men_t20i_batting': 11,
@@ -13,12 +13,12 @@ format_length = {'men_test_batting': 11,
                 'women_odi_bowling': 10,
                 'women_t20i_batting': 11,
                 'women_t20i_bowling': 10,
-                'men_test_team': 10,         
-                'men_odi_team': 9,         
-                'men_t20i_team': 9,         
-                'women_test_team': 10,         
-                'women_odi_team': 9,         
-                'women_t20i_team': 9,               
+                'men_test_team': 10,
+                'men_odi_team': 9,
+                'men_t20i_team': 9,
+                'women_test_team': 10,
+                'women_odi_team': 9,
+                'women_t20i_team': 9,
                 }
 
 team_lookup = {'AUS': 'Australia',
@@ -196,4 +196,6 @@ team_lookup = {'AUS': 'Australia',
             'CAM': 'Cameroon',
             'Bhm': 'Bahamas',
             'BEL-W': 'Belgium Women',
+            'BHR-W': 'Belgium Women',
+            'KSA-W': 'Saudi Arabia Women',
             }
